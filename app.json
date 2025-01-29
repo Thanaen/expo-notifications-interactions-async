@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.CHANGETHIS.exponotificationsinteractionsasync"
+      "bundleIdentifier": "com.CHANGETHIS.exponotificationsinteractionsasync",
+      "infoPlist": {
+        "UIBackgroundModes": ["fetch"]
+      }
     },
     "android": {
       "adaptiveIcon": {
