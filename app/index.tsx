@@ -2,6 +2,7 @@ import { Button, Text, View } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as React from "react";
 import { MMKV, useMMKVString } from "react-native-mmkv";
+import axios from "axios";
 
 const storage = new MMKV();
 const NOTIFICATION_CATEGORY = "test-notification-category";
@@ -71,9 +72,9 @@ export default function Index() {
               "Sync actions will be shown in the console when the app is in background"
             );
             logToStorage("But let's try to fetch some data from the server...");
-            const data = await fetch(
+            const data = await axios(
               "https://jsonplaceholder.typicode.com/todos/1"
-            ).then((response) => response.json());
+            ).then((response) => response.data);
             logToStorage("Data fetched successfully");
             logToStorage(
               "Fetching only started when the app was in foreground"
