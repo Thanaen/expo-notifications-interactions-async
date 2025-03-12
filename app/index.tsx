@@ -1,5 +1,5 @@
 import { Button, Text, View } from "react-native";
-import * as Notifications from "expo-notifications";
+import notifee, { EventType, TriggerType } from "@notifee/react-native";
 import * as React from "react";
 import { MMKV, useMMKVString } from "react-native-mmkv";
 import axios from "axios";
@@ -7,12 +7,46 @@ import axios from "axios";
 const storage = new MMKV();
 const NOTIFICATION_CATEGORY = "test-notification-category";
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
+notifee.setNotificationCategories([
+  {
+    id: NOTIFICATION_CATEGORY,
+    actions: [
+      {
+        id: "async-action",
+        title: "Async Action",
+        authenticationRequired: true,
+        foreground: false,
+      },
+      {
+        id: "sync-action",
+        title: "Sync Action",
+        authenticationRequired: true,
+        foreground: false,
+      },
+    ],
+  },
+]);
+
+notifee.onBackgroundEvent(async (event) => {
+  if (event.type === EventType.ACTION_PRESS) {
+    if (event.detail.pressAction?.id === "async-action") {
+      logToStorage("Doing async action");
+      logToStorage(
+        "Sync actions will be shown in the console when the app is in background"
+      );
+      logToStorage("But let's try to fetch some data from the server...");
+      const data = await axios(
+        "https://jsonplaceholder.typicode.com/todos/1"
+      ).then((response) => response.data);
+      logToStorage("Data fetched successfully");
+      logToStorage("Fetching only started when the app was in foreground");
+    } else if (event.detail.pressAction?.id === "sync-action") {
+      logToStorage("Doing sync action");
+      logToStorage(
+        "All logs will be shown in the console, even if the app is in background"
+      );
+    }
+  }
 });
 
 const logToStorage = (message: string) => {
@@ -43,70 +77,24 @@ const Logs = () => {
 export default function Index() {
   React.useEffect(() => {
     // Request permissions
-    Notifications.requestPermissionsAsync().catch(console.error);
-
-    // Setup notifications categories
-    Notifications.setNotificationCategoryAsync(NOTIFICATION_CATEGORY, [
-      {
-        identifier: "async-action",
-        buttonTitle: "Async Action",
-        options: {
-          opensAppToForeground: false,
-        },
-      },
-      {
-        identifier: "sync-action",
-        buttonTitle: "Sync Action",
-        options: {
-          opensAppToForeground: false,
-        },
-      },
-    ]).catch(console.error);
-
-    const responseHandler =
-      Notifications.addNotificationResponseReceivedListener(
-        async (response) => {
-          if (response.actionIdentifier === "async-action") {
-            logToStorage("Doing async action");
-            logToStorage(
-              "Sync actions will be shown in the console when the app is in background"
-            );
-            logToStorage("But let's try to fetch some data from the server...");
-            const data = await axios(
-              "https://jsonplaceholder.typicode.com/todos/1"
-            ).then((response) => response.data);
-            logToStorage("Data fetched successfully");
-            logToStorage(
-              "Fetching only started when the app was in foreground"
-            );
-          } else if (response.actionIdentifier === "sync-action") {
-            logToStorage("Doing sync action");
-            logToStorage(
-              "All logs will be shown in the console, even if the app is in background"
-            );
-          }
-        }
-      );
-
-    return () => {
-      responseHandler.remove();
-    };
+    notifee.requestPermission().catch(console.error);
   }, []);
 
   const showNotification = () =>
-    Notifications.scheduleNotificationAsync({
-      identifier: "test-notification",
-      content: {
-        categoryIdentifier: NOTIFICATION_CATEGORY,
-        title: "Test Notification",
-        body: "This is a test notification",
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DATE,
-        // Show the notification in 3 seconds
-        date: new Date(Date.now() + 3000),
-      },
-    })
+    notifee
+      .createTriggerNotification(
+        {
+          ios: {
+            categoryId: NOTIFICATION_CATEGORY,
+          },
+          title: "Test Notification",
+          body: "This is a test notification",
+        },
+        {
+          type: TriggerType.TIMESTAMP,
+          timestamp: new Date(Date.now() + 3000).getTime(),
+        }
+      )
       .then(() => {
         console.log("Notification scheduled");
       })
