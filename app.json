@@ -12,9 +12,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.CHANGETHIS.exponotificationsinteractionsasync",
       "infoPlist": {
-        "UIBackgroundModes": [
-          "fetch"
-        ]
+        "UIBackgroundModes": ["fetch"]
       }
     },
     "android": {
@@ -40,7 +38,9 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-web-browser",
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true
