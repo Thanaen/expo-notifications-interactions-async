@@ -2,6 +2,7 @@ import { Button, Text, View } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as React from "react";
 import { MMKV, useMMKVString } from "react-native-mmkv";
+import { fetch } from "react-native-nitro-fetch";
 
 const storage = new MMKV();
 const NOTIFICATION_CATEGORY = "test-notification-category";
