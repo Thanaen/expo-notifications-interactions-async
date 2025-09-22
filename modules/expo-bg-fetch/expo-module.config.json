@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["ExpoBgFetchModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.bgfetch.ExpoBgFetchModule"]
+  }
+}
